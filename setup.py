@@ -12,7 +12,6 @@ history = open(join('docs', 'HISTORY.txt')).read()
 install_requires=[
     'dolmen.forms.base',
     'dolmen.template',
-    'dolmen.view',
     'dolmen.viewlet',
     'grokcore.component',
     'setuptools',
@@ -24,6 +23,8 @@ tests_require = [
     'WebOb',
     'cromlech.io',
     'cromlech.webob',
+    'dolmen.view',
+    'dolmen.tales',  # Needed for the Slot expression.
     'infrae.testbrowser',
     'zope.configuration',
     'zope.location',
