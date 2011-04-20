@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 
-from zeam.form.base import *
-from grokcore.viewlet import *
-
-from zeam.form.viewlet.form import ViewletForm, ViewletManagerForm
+from dolmen.viewlet import *
+from dolmen.forms.base import *
+from dolmen.forms.viewlet.form import ViewletForm, ViewletManagerForm

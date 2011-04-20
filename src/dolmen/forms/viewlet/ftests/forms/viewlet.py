@@ -4,25 +4,50 @@ We define a viewlet form here.
 
 Let's grok our example:
 
-  >>> from zeam.form.viewlet.testing import grok
-  >>> grok('zeam.form.viewlet.ftests.forms.viewlet')
+  >>> from dolmen.forms.viewlet.testing import grok
+  >>> grok('dolmen.forms.viewlet.ftests.forms.viewlet')
 
 Let's render the view that use our viewlet now:
 
-  >>> from zope.publisher.browser import TestRequest
-  >>> request = TestRequest()
+  >>> from cromlech.io.testing import TestRequest
+  >>> from dolmen.forms.viewlet.ftests.forms import viewlet as test
 
-  >>> from zeam.form.viewlet.ftests.forms.viewlet import Context
-  >>> context = Context()
+  >>> request = TestRequest()
+  >>> context = test.Context()
+  >>> page = test.Index(context, request)
+  >>> manager = test.Manager(context, request, page)
+  >>> print manager()
+  <form method="post" enctype="multipart/form-data" id="form">
+    <h3>Subscription corner</h3>
+    <div class="fields">
+      <div class="field">
+        <label class="field-label" for="form-field-name">Name</label>
+        <br />
+        <input type="text" id="form-field-name" name="form.field.name" class="field" value="" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="form-field-email">Email</label>
+        <br />
+        <input type="text" id="form-field-email" name="form.field.email" class="field" value="" />
+      </div>
+    </div>
+    <div class="actions">
+      <div class="action">
+        <input type="submit" id="form-action-subscribe" name="form.action.subscribe" value="Subscribe" class="action" />
+      </div>
+    </div>
+  </form>
+
 
 Integration tests
 -----------------
 
-  >>> root = getRootFolder()
-  >>> root['content'] = context
+  >>> context.__name__ = 'content'
+  >>> context.__parent__ = getRootFolder()
 
-  >>> from zope.testbrowser.testing import Browser
-  >>> browser = Browser()
+  >>> from infrae.testbrowser.browser import Browser
+  >>> app = makeApplication(context, 'index')
+  >>> browser = Browser(app)
   >>> browser.handleErrors = False
 
 Submission
@@ -32,10 +57,11 @@ We are going just to submit the form without giving any required
 information, and we should get an error:
 
   >>> browser.open('http://localhost/content/index')
+  200
   >>> print browser.contents
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
   <div>
-    <form action="http://localhost/content/index" method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" id="form">
       <h3>Subscription corner</h3>
       <div class="fields">
         <div class="field">
@@ -56,46 +82,65 @@ information, and we should get an error:
     </form>
   </div>
 
-  >>> 'Registration done for Sylvain' not in browser.contents
+  >>> 'Registration done for Grok' not in browser.contents
   True
-  >>> browser.getControl('Name').value = "Sylvain"
-  >>> browser.getControl('Email').value = "sylvain at example dot com"
-  >>> browser.getControl('Subscribe').click()
-  >>> 'Registration done for Sylvain' in browser.contents
+
+  >>> form = browser.get_form(id='form')
+  >>> form.get_control('form.field.name').value = 'Grok'
+  >>> form.get_control('form.field.email').value = 'grok@zope.org'
+  >>> form.get_control('form.action.subscribe').click()
+  200
+  >>> 'Registration done for Grok' in browser.contents
   True
 
 """
 
-from zeam.form import viewlet as zeam
-from grokcore import viewlet as grok
+from os import path
+from cromlech.webob.response import Response
+from dolmen.forms.base import Field, Fields, action, FAILURE, SUCCESS
+from dolmen.forms.viewlet import ViewletForm
+from dolmen.tales import SlotExpr
+from dolmen.template import TALTemplate
+from dolmen.view import View
+from dolmen.viewlet import ViewletManager
+from dolmen.viewlet import name, slot, context, view
 
 
-class Context(grok.Context):
+PATH = path.join(path.dirname(__file__), 'templates')
+
+
+class Template(TALTemplate):
+    expression_types = {'slot': SlotExpr}
+
+
+class Context(object):
     pass
 
 
-class Index(grok.View):
-    grok.context(Context)
+class Index(View):
+    context(Context)
+    responseFactory = Response
+    template = Template(path.join(PATH, 'viewlet.pt'))
 
 
-class Manager(grok.ViewletManager):
-    grok.context(Context)
-    grok.view(Index)
-    grok.name('manager')
+class Manager(ViewletManager):
+    name('manager')
+    view(Index)
+    context(Context)
 
 
-class Form(zeam.ViewletForm):
-    grok.context(Context)
-    grok.view(Index)
-    grok.viewletmanager(Manager)
+class Form(ViewletForm):
+    view(Index)
+    slot(Manager)
+    context(Context)
 
     label = 'Subscription corner'
-    fields = zeam.Fields(zeam.Field('Name'), zeam.Field('Email'))
+    fields = Fields(Field('Name'), Field('Email'))
 
-    @zeam.action("Subscribe")
+    @action("Subscribe")
     def subscribe(self):
         data, errors = self.extractData()
         if errors:
-            return zeam.FAILURE
+            return FAILURE
         self.status = "Registration done for %s" % (data['name'])
-        return zeam.SUCCESS
+        return SUCCESS

@@ -4,25 +4,25 @@ We define a viewlet manager form here.
 
 Let's grok our example:
 
-  >>> from zeam.form.viewlet.testing import grok
-  >>> grok('zeam.form.viewlet.ftests.forms.viewletmanager')
+  >>> from dolmen.forms.viewlet.testing import grok
+  >>> grok('dolmen.forms.viewlet.ftests.forms.viewletmanager')
 
-Let's render the view that use our viewlet now:
-
-  >>> from zope.publisher.browser import TestRequest
-  >>> request = TestRequest()
-
-  >>> from zeam.form.viewlet.ftests.forms.viewletmanager import Context
-  >>> context = Context()
 
 Integration tests
 -----------------
 
-  >>> root = getRootFolder()
-  >>> root['content'] = context
+  >>> from cromlech.io.testing import TestRequest
+  >>> from dolmen.forms.viewlet.ftests.forms import viewletmanager as test
+  
+  >>> request = TestRequest()
+  >>> context = test.Context()
 
-  >>> from zope.testbrowser.testing import Browser
-  >>> browser = Browser()
+  >>> context.__name__ = 'content'
+  >>> context.__parent__ = getRootFolder()
+
+  >>> from infrae.testbrowser.browser import Browser
+  >>> app = makeApplication(context, 'index')
+  >>> browser = Browser(app)
   >>> browser.handleErrors = False
 
 Submission
@@ -32,10 +32,11 @@ We are going just to submit the form without giving any required
 information, and we should get an error:
 
   >>> browser.open('http://localhost/content/index')
+  200
   >>> print browser.contents
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
   <div>
-    <form action="http://localhost/content/index" method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" id="registration">
       <h3>Subscription corner</h3>
       <div class="fields">
         <div class="field">
@@ -56,39 +57,59 @@ information, and we should get an error:
     </form>
   </div>
 
-  >>> 'Registration done for Sylvain' not in browser.contents
+  >>> 'Registration done for Grok' not in browser.contents
   True
-  >>> browser.getControl('Name').value = "Sylvain"
-  >>> browser.getControl('Email').value = "sylvain at example dot com"
-  >>> browser.getControl('Subscribe').click()
-  >>> 'Registration done for Sylvain' in browser.contents
+
+  >>> form = browser.get_form(id='registration')
+  >>> form.get_control('registration.field.name').value = 'Grok'
+  >>> form.get_control('registration.field.email').value = 'grok@zope.org'
+  >>> form.get_control('registration.action.subscribe').click()
+  200
+  >>> 'Registration done for Grok' in browser.contents
   True
 
 """
 
-from zeam.form import viewlet as zeam
-from grokcore import viewlet as grok
+from os import path
+from cromlech.webob.response import Response
+from dolmen.forms.base import Field, Fields, action, FAILURE, SUCCESS
+from dolmen.forms.viewlet import ViewletManagerForm
+from dolmen.tales import SlotExpr
+from dolmen.template import TALTemplate
+from dolmen.view import View
+from dolmen.viewlet import context, view
 
 
-class Context(grok.Context):
+PATH = path.join(path.dirname(__file__), 'templates')
+
+
+class Template(TALTemplate):
+    expression_types = {'slot': SlotExpr}
+
+
+class Context(object):
     pass
 
 
-class Index(grok.View):
-    grok.context(Context)
+class Index(View):
+    context(Context)
+    responseFactory = Response
+
+    template = Template(path.join(PATH, 'manager.pt'))
 
 
-class Registration(zeam.ViewletManagerForm):
-    grok.context(Context)
-    grok.view(Index)
+class Registration(ViewletManagerForm):
+    context(Context)
+    view(Index)
 
     label = 'Subscription corner'
-    fields = zeam.Fields(zeam.Field('Name'), zeam.Field('Email'))
+    fields = Fields(Field('Name'), Field('Email'))
+    responseFactory = Response
 
-    @zeam.action("Subscribe")
+    @action("Subscribe")
     def subscribe(self):
         data, errors = self.extractData()
         if errors:
-            return zeam.FAILURE
+            return FAILURE
         self.status = "Registration done for %s" % (data['name'])
-        return zeam.SUCCESS
+        return SUCCESS

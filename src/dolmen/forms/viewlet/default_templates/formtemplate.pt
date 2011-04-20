@@ -1,4 +1,5 @@
-<form action="#" tal:attributes="action request.URL" method="post"
+<form tal:attributes="id form.htmlId()"
+      method="post"
       enctype="multipart/form-data"
       i18n:domain="zeam.form.base">
 
