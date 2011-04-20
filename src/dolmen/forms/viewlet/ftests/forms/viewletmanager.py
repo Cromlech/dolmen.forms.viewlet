@@ -74,17 +74,12 @@ from os import path
 from cromlech.webob.response import Response
 from dolmen.forms.base import Field, Fields, action, FAILURE, SUCCESS
 from dolmen.forms.viewlet import ViewletManagerForm
-from dolmen.tales import SlotExpr
 from dolmen.template import TALTemplate
 from dolmen.view import View
 from dolmen.viewlet import context, view
 
 
 PATH = path.join(path.dirname(__file__), 'templates')
-
-
-class Template(TALTemplate):
-    expression_types = {'slot': SlotExpr}
 
 
 class Context(object):
@@ -95,7 +90,7 @@ class Index(View):
     context(Context)
     responseFactory = Response
 
-    template = Template(path.join(PATH, 'manager.pt'))
+    template = TALTemplate(path.join(PATH, 'manager.pt'))
 
 
 class Registration(ViewletManagerForm):
@@ -104,7 +99,6 @@ class Registration(ViewletManagerForm):
 
     label = 'Subscription corner'
     fields = Fields(Field('Name'), Field('Email'))
-    responseFactory = Response
 
     @action("Subscribe")
     def subscribe(self):

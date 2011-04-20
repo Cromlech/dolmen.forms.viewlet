@@ -24,7 +24,6 @@ tests_require = [
     'WebOb',
     'cromlech.io',
     'cromlech.webob',
-    'dolmen.tales',
     'infrae.testbrowser',
     'zope.configuration',
     'zope.location',

@@ -99,7 +99,6 @@ from os import path
 from cromlech.webob.response import Response
 from dolmen.forms.base import Field, Fields, action, FAILURE, SUCCESS
 from dolmen.forms.viewlet import ViewletForm
-from dolmen.tales import SlotExpr
 from dolmen.template import TALTemplate
 from dolmen.view import View
 from dolmen.viewlet import ViewletManager
@@ -109,10 +108,6 @@ from dolmen.viewlet import name, slot, context, view
 PATH = path.join(path.dirname(__file__), 'templates')
 
 
-class Template(TALTemplate):
-    expression_types = {'slot': SlotExpr}
-
-
 class Context(object):
     pass
 
@@ -120,7 +115,7 @@ class Context(object):
 class Index(View):
     context(Context)
     responseFactory = Response
-    template = Template(path.join(PATH, 'viewlet.pt'))
+    template = TALTemplate(path.join(PATH, 'viewlet.pt'))
 
 
 class Manager(ViewletManager):
