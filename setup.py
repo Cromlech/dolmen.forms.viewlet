@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 
 name = 'dolmen.forms.viewlet'
-version = '2.0a1dev'
+version = '2.0a1'
 readme = open(join('src', 'dolmen', 'forms', 'viewlet', 'README.txt')).read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
@@ -20,14 +20,14 @@ install_requires=[
     ]
 
 tests_require = [
-    'WebOb',
     'cromlech.io',
     'cromlech.webob',
+    'cromlech.browser [test]',
     'dolmen.view',
     'dolmen.tales',  # Needed for the Slot expression.
-    'infrae.testbrowser',
     'zope.configuration',
-    'zope.location',
+    'zope.testing',
+    'pytest',
     ]
 
 setup(name=name,
