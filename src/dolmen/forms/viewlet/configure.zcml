@@ -2,9 +2,6 @@
            xmlns:grok="http://namespaces.zope.org/grok">
 
   <include package="dolmen.viewlet" file="meta.zcml" />
-
-  <!-- Grok template -->
-  <grok:grok package=".meta" />
-  <grok:grok package=".form" />
+  <grok:grok package="." />
 
 </configure>
