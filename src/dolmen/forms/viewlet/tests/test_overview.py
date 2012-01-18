@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from os import path
-from cromlech.browser.testing import XMLDiff
-from cromlech.webob.response import Response
+from cromlech.browser.testing import XMLDiff, TestHTTPRequest, TestHTTPResponse
 from dolmen.forms.base import Field, Fields, action, FAILURE, SUCCESS
 from dolmen.forms.viewlet import ViewletForm
 from dolmen.template import TALTemplate
@@ -11,7 +10,6 @@ from dolmen.viewlet import ViewletManager
 from dolmen.viewlet import name, slot, context, view
 from grokcore.component import testing
 from zope.testing.cleanup import cleanUp
-from cromlech.io.testing import TestRequest
 from zope.configuration.config import ConfigurationMachine
 from grokcore.component import zcml
 
@@ -35,7 +33,7 @@ class Context(object):
 
 class Index(View):
     context(Context)
-    responseFactory = Response
+    responseFactory = TestHTTPResponse
     template = TALTemplate(path.join(PATH, 'viewlet.pt'))
 
 
@@ -76,7 +74,7 @@ def teardown_function(module):
 
 
 def test_viewlet_manager():
-  request = TestRequest()
+  request = TestHTTPRequest()
   context = Context()
   page = Index(context, request)
   manager = Manager(context, request, page)

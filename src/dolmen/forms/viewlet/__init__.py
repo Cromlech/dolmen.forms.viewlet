@@ -2,4 +2,4 @@
 
 from dolmen.viewlet import *
 from dolmen.forms.base import *
-from dolmen.forms.viewlet.form import ViewletForm, ViewletManagerForm
+from dolmen.forms.viewlet.components import ViewletForm, ViewletManagerForm

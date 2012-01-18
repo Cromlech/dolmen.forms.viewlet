@@ -4,7 +4,7 @@ import os.path
 import grokcore.component as grok
 from dolmen.template import TALTemplate, ITemplate
 from dolmen.viewlet import ViewletManager, Viewlet
-from dolmen.forms.base.forms import FormCanvas
+from dolmen.forms.base import FormCanvas
 from dolmen.forms.viewlet.interfaces import IInlineForm
 from zope.component import getMultiAdapter
 from zope.interface import Interface

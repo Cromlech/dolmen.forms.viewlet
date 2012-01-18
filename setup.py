@@ -5,14 +5,14 @@ from setuptools import setup, find_packages
 
 
 name = 'dolmen.forms.viewlet'
-version = '2.0a1'
+version = '2.0'
 readme = open(join('src', 'dolmen', 'forms', 'viewlet', 'README.txt')).read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires=[
-    'dolmen.forms.base',
+    'dolmen.forms.base >= 2.0',
     'dolmen.template',
-    'dolmen.viewlet',
+    'dolmen.viewlet >= 0.2',
     'grokcore.component',
     'setuptools',
     'zope.component',
@@ -20,10 +20,8 @@ install_requires=[
     ]
 
 tests_require = [
-    'cromlech.io',
-    'cromlech.webob',
-    'cromlech.browser [test]',
-    'dolmen.view',
+    'cromlech.browser [test] >= 0.4',
+    'dolmen.view >= 0.4',
     'dolmen.tales',  # Needed for the Slot expression.
     'zope.configuration',
     'zope.testing',
