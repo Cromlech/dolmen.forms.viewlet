@@ -56,6 +56,8 @@ class ViewletForm(Viewlet, FormCanvas):
 
     i18nLanguage = None
 
+    action_url = '.'
+
     def __init__(self, context, request, view, manager):
         Viewlet.__init__(self, context, request, view, manager)
         FormCanvas.__init__(self, context, request)

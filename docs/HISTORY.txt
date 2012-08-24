@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2.1 (2012-08-24)
+----------------
+
+* Updated default template to approfitate some old improvments 
+  of base FormCanvas
+
+
 2.0 (2012-01-17)
 ----------------
 

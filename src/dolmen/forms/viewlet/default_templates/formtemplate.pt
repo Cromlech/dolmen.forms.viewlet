@@ -1,7 +1,9 @@
-<form tal:attributes="id form.htmlId()"
-      method="post"
-      enctype="multipart/form-data"
-      i18n:domain="zeam.form.base">
+<form action="."
+      tal:attributes="action viewlet.action_url;
+                      id viewlet.htmlId();
+                      method viewlet.formMethod;
+                      enctype viewlet.enctype"
+      i18n:domain="dolmen.form.base">
 
   <h3 tal:condition="form.label"
       tal:content="form.label">Label</h3>
