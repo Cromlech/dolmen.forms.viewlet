@@ -1,30 +1,20 @@
 # -*- coding: utf-8 -*-
 
+
+import dolmen.forms.base
+import crom
 from os import path
-from cromlech.browser.testing import XMLDiff, TestHTTPRequest, TestHTTPResponse
+from crom import testing
+from cromlech.browser.testing import XMLDiff, TestRequest, TestResponse
 from dolmen.forms.base import Field, Fields, action, FAILURE, SUCCESS
 from dolmen.forms.viewlet import ViewletForm
 from dolmen.template import TALTemplate
 from dolmen.view import View
 from dolmen.viewlet import ViewletManager
 from dolmen.viewlet import name, slot, context, view
-from grokcore.component import testing
-from zope.testing.cleanup import cleanUp
-from zope.configuration.config import ConfigurationMachine
-from grokcore.component import zcml
 
 
 PATH = path.dirname(__file__)
-
-
-def grok(module_name):
-    config = ConfigurationMachine()
-    zcml.do_grok('grokcore.component.meta', config)
-    zcml.do_grok('dolmen.view.meta', config)
-    zcml.do_grok('dolmen.viewlet.meta', config)
-    zcml.do_grok('dolmen.forms.base', config)
-    zcml.do_grok(module_name, config)
-    config.execute_actions()
 
 
 class Context(object):
@@ -33,7 +23,7 @@ class Context(object):
 
 class Index(View):
     context(Context)
-    responseFactory = TestHTTPResponse
+    responseFactory = TestResponse
     template = TALTemplate(path.join(PATH, 'viewlet.pt'))
 
 
@@ -61,20 +51,21 @@ class Form(ViewletForm):
         return SUCCESS
 
 
-
 def setup_function(module):
-    grok("dolmen.forms.viewlet")
-    testing.grok_component('index', Index)
-    testing.grok_component('manager', Manager)
-    testing.grok_component('form', Form)
-    
+    testing.setup()
+    from . import test_overview
+    import dolmen.forms.base
+    crom.configure(dolmen.forms.base)
+    crom.configure(dolmen.forms.viewlet)
+    crom.configure(test_overview)
+
 
 def teardown_function(module):
-    cleanUp()
+    testing.teardown()
 
 
 def test_viewlet_manager():
-  request = TestHTTPRequest()
+  request = TestRequest()
   context = Context()
   page = Index(context, request)
   manager = Manager(context, request, page)
@@ -82,10 +73,9 @@ def test_viewlet_manager():
 
   viewlet.update()
   assert not XMLDiff(viewlet.render(), EXPECTED)
-  
 
 
-EXPECTED = """<form method="post" enctype="multipart/form-data" id="form">
+EXPECTED = """<form action="." method="post" enctype="multipart/form-data" id="form">
       <h3>Subscription corner</h3>
       <div class="fields">
         <div class="field">

@@ -5,26 +5,23 @@ from setuptools import setup, find_packages
 
 
 name = 'dolmen.forms.viewlet'
-version = '2.1'
+version = '3.0-crom'
 readme = open(join('src', 'dolmen', 'forms', 'viewlet', 'README.txt')).read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires=[
-    'dolmen.forms.base >= 2.0',
+    'crom',
+    'cromlech.browser',
+    'dolmen.forms.base',
     'dolmen.template',
-    'dolmen.viewlet >= 0.2',
-    'grokcore.component',
+    'dolmen.viewlet',
     'setuptools',
-    'zope.component',
     'zope.interface',
     ]
 
 tests_require = [
-    'cromlech.browser [test] >= 0.4',
     'dolmen.view >= 0.4',
     'dolmen.tales',  # Needed for the Slot expression.
-    'zope.configuration',
-    'zope.testing',
     'pytest',
     ]
 

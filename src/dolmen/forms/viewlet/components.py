@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import os.path
-import grokcore.component as grok
-from dolmen.template import TALTemplate, ITemplate
+import crom
+from cromlech.browser import ITemplate
+from dolmen.template import TALTemplate
 from dolmen.viewlet import ViewletManager, Viewlet
 from dolmen.forms.base import FormCanvas
 from dolmen.forms.viewlet.interfaces import IInlineForm
-from zope.component import getMultiAdapter
-from zope.interface import Interface
+from zope.interface import Interface, implementer
 
 
+@implementer(IInlineForm)
 class ViewletManagerForm(ViewletManager, FormCanvas):
-    grok.baseclass()
-    grok.implements(IInlineForm)
 
     i18nLanguage = None
 
@@ -26,7 +25,7 @@ class ViewletManagerForm(ViewletManager, FormCanvas):
 
     @property
     def template(self):
-        return getMultiAdapter((self, self.request), ITemplate)
+        return ITemplate(self, self.request)
 
     def update(self):
         ViewletManager.update(self)
@@ -48,12 +47,10 @@ class ViewletManagerForm(ViewletManager, FormCanvas):
         return FormCanvas.render(self)
 
 
+@implementer(IInlineForm)
 class ViewletForm(Viewlet, FormCanvas):
     """A form as a viewlet.
     """
-    grok.baseclass()
-    grok.implements(IInlineForm)
-
     i18nLanguage = None
 
     action_url = '.'
@@ -64,7 +61,7 @@ class ViewletForm(Viewlet, FormCanvas):
 
     @property
     def template(self):
-        return getMultiAdapter((self, self.request), ITemplate)
+        return ITemplate(self, self.request)
 
     def update(self):
         Viewlet.update(self)
@@ -86,8 +83,9 @@ class ViewletForm(Viewlet, FormCanvas):
         return FormCanvas.render(self)
 
 
-@grok.adapter(IInlineForm, Interface)
-@grok.implementer(ITemplate)
+@crom.adapter
+@crom.sources(IInlineForm, Interface)
+@crom.target(ITemplate)
 def default_form_template(component, request):
     """Default tempalte for ViewletForm
     """
