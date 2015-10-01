@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 
 name = 'dolmen.forms.viewlet'
-version = '3.0-crom'
+version = '3.0+crom'
 readme = open(join('src', 'dolmen', 'forms', 'viewlet', 'README.txt')).read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
